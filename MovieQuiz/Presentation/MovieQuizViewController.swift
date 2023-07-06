@@ -11,6 +11,7 @@ final class MovieQuizViewController: UIViewController {
     private var currentQuestionIndex = 0
     // переменная со счётчиком правильных ответов
     private var correctAnswers = 0
+    private var hapticFeedback = UINotificationFeedbackGenerator()
     
     // массив вопросов
     private let questions: [QuizQuestion] = [
@@ -49,7 +50,12 @@ final class MovieQuizViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-        
+    
+    private func blockButtons(_ block: Bool) {
+        noButtonView.isEnabled = block
+        yesButtonView.isEnabled = block
+    }
+    
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для экрана вопроса
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
@@ -65,7 +71,7 @@ final class MovieQuizViewController: UIViewController {
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
     }
-
+    
     // приватный метод, который меняет цвет рамки
     // принимает на вход булевое значение и ничего не возвращает
     private func showAnswerResult(isCorrect: Bool) {
@@ -76,16 +82,15 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.borderWidth = 8
         imageView.layer.cornerRadius = 20
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        noButtonView.isEnabled = false
-        yesButtonView.isEnabled = false
+        hapticFeedback.notificationOccurred(isCorrect ? .success : .error)
+        blockButtons(false)
         
         // запускаем задачу через 1 секунду c помощью диспетчера задач
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             // код, который мы хотим вызвать через 1 секунду
             self.showNextQuestionOrResults()
             self.imageView.layer.borderColor = UIColor.clear.cgColor
-            self.noButtonView.isEnabled = true
-            self.yesButtonView.isEnabled = true
+            self.blockButtons(true)
         }
     }
     

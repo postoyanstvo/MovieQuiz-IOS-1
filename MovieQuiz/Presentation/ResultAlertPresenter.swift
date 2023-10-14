@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-final class AlertPresenterImplementation{
+final class ResultAlertPresenter{
     weak var viewController: UIViewController?
     
     init(viewController: UIViewController? = nil) {
@@ -17,7 +17,7 @@ final class AlertPresenterImplementation{
 }
 
 
-extension AlertPresenterImplementation: AlertPresenterProtocol {
+extension ResultAlertPresenter: AlertPresenterProtocol {
     func show(alertModel: AlertModel) {
         let alert = UIAlertController(
             title: alertModel.title,
@@ -27,7 +27,7 @@ extension AlertPresenterImplementation: AlertPresenterProtocol {
         let action = UIAlertAction(title: alertModel.buttonText, style: .default) {_ in 
             alertModel.buttonAction()
         }
-
+        
         alert.addAction(action)
         
         viewController?.present(alert, animated: true)

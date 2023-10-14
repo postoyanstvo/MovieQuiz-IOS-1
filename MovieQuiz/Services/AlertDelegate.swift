@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol AlertModelDelegate {
-    func didRecieveAlert(_ alert: AlertModel)
+protocol AlertDelegate {
+    func show(alertModel: AlertModel)
 }

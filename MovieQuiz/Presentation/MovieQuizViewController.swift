@@ -3,12 +3,12 @@ import UIKit
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Lifecycle
-    @IBOutlet private var imageView: UIImageView!
-    @IBOutlet private var textLabel: UILabel!
-    @IBOutlet private var counterLabel: UILabel!
-    @IBOutlet private var noButtonView: UIButton!
-    @IBOutlet private var yesButtonView: UIButton!
-    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet private weak var noButtonView: UIButton!
+    @IBOutlet private weak var yesButtonView: UIButton!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
@@ -67,12 +67,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showLoadingIndicator() {
-        activityIndicator.isHidden = false //индикатор не скрыт
+        activityIndicator.hidesWhenStopped = true //индикатор скрывается автоматически
         activityIndicator.startAnimating() //включается анимация
-    }
-    
-    private func hideLoadingIndicator() {
-        activityIndicator.isHidden = true
     }
     
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для экрана вопроса
@@ -128,11 +124,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showNetworkError(message: String) {
-        hideLoadingIndicator()
+        activityIndicator.stopAnimating()
         
         let alertModel = AlertModel(
-            title: "Ошибка",
-            message: makeResultMessage(),
+            title: "Что-то пошло не так(",
+            message: "Невозможно загрузить данные",
             buttonText: "Попробовать еще раз",
             buttonAction: { [weak self] in
                 guard let self = self else { return }
@@ -194,7 +190,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     func didLoadDataFromServer() {
-        hideLoadingIndicator()
+        activityIndicator.stopAnimating()
         questionFactory?.requestNextQuestion()
     }
     

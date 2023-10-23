@@ -79,6 +79,7 @@ class QuestionFactoryImplementation: QuestionFactoryProtocol {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
+                self.delegate?.didFailToLoadData(with: error) // сообщаем об ошибке нашему MovieQuizViewController
             }
             
             let rating = Float(movie.rating) ?? 0

@@ -1,12 +1,14 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    
     // MARK: - Lifecycle
-    @IBOutlet private var imageView: UIImageView!
-    @IBOutlet private var textLabel: UILabel!
-    @IBOutlet private var counterLabel: UILabel!
-    @IBOutlet private var noButtonView: UIButton!
-    @IBOutlet private var yesButtonView: UIButton!
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet private weak var noButtonView: UIButton!
+    @IBOutlet private weak var yesButtonView: UIButton!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
@@ -17,7 +19,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenterProtocol?
-    private var statisticService: StatisticService?
+    private var statisticService: StatisticServiceProtocol?
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -28,10 +30,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        questionFactory = QuestionFactoryImplementation(delegate: self)
+        questionFactory = QuestionFactoryImplementation(moviesLoader: MoviesLoader(), delegate: self)
+        statisticService = StatisticServiceImplementation()
+        showLoadingIndicator()
+        questionFactory?.loadData()
+        
         questionFactory?.requestNextQuestion()
         alertPresenter = ResultAlertPresenter(viewController: self)
-        statisticService = StatisticServiceImplementation()
     }
     
     // MARK: - Actions
@@ -61,10 +66,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         yesButtonView.isEnabled = block
     }
     
+    private func showLoadingIndicator() {
+        activityIndicator.hidesWhenStopped = true //индикатор скрывается автоматически
+        activityIndicator.startAnimating() //включается анимация
+    }
+    
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для экрана вопроса
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsCount)")
         return questionStep
@@ -113,6 +123,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
+    private func showNetworkError(message: String) {
+        activityIndicator.stopAnimating()
+        
+        let alertModel = AlertModel(
+            title: "Что-то пошло не так(",
+            message: "Невозможно загрузить данные",
+            buttonText: "Попробовать еще раз",
+            buttonAction: { [weak self] in
+                guard let self = self else { return }
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                self.questionFactory?.requestNextQuestion()
+            }
+        )
+        alertPresenter?.show(alertModel: alertModel)
+    }
+    
     // MARK: - QuestionFactoryDelegate
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -145,7 +172,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func makeResultMessage() -> String {
-        
         guard
             let statisticService = statisticService,
             let bestGame = statisticService.bestGame else {
@@ -161,5 +187,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let resultMessage = [currentGameResultLine, totalPlaysCountLine, bestGameInfoLine, averageAccuracyLine].joined(separator: "\n")
         
         return resultMessage
+    }
+    
+    func didLoadDataFromServer() {
+        activityIndicator.stopAnimating()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        showLoadingIndicator() // отображаем состояние
+        showNetworkError(message: error.localizedDescription) // возьмём в качестве сообщения описание ошибки
     }
 }

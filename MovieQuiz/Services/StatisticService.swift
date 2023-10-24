@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol StatisticService {
+protocol StatisticServiceProtocol {
     var totalAccuracy: Double { get } // средняя точность
     var gamesCount: Int { get } // общее количество игр
     var bestGame: BestGame? { get } // рекордная игра
@@ -40,7 +40,7 @@ final class StatisticServiceImplementation {
     }
 }
 
-extension StatisticServiceImplementation: StatisticService {
+extension StatisticServiceImplementation: StatisticServiceProtocol {
     
     var gamesCount: Int {
         get {

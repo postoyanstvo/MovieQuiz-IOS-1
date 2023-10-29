@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-final class ResultAlertPresenter{
+final class AlertPresenter{
     weak var viewController: UIViewController?
     
     init(viewController: UIViewController? = nil) {
@@ -17,7 +17,7 @@ final class ResultAlertPresenter{
 }
 
 
-extension ResultAlertPresenter: AlertPresenterProtocol {
+extension AlertPresenter: AlertPresenterProtocol {
     func show(alertModel: AlertModel) {
         let alert = UIAlertController(
             title: alertModel.title,

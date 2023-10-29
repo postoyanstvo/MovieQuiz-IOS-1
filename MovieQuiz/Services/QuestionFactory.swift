@@ -18,39 +18,6 @@ class QuestionFactoryImplementation: QuestionFactoryProtocol {
         self.delegate = delegate
     }
     
-    /*private let questions: [QuizQuestion] = [
-        QuizQuestion(
-            image: "The Godfather",
-            correctAnswer: true),
-        QuizQuestion(
-            image: "The Dark Knight",
-            correctAnswer: true),
-        QuizQuestion(
-            image: "Kill Bill",
-            correctAnswer: true),
-        QuizQuestion(
-            image: "The Avengers",
-            correctAnswer: true),
-        QuizQuestion(
-            image: "Deadpool",
-            correctAnswer: true),
-        QuizQuestion(
-            image: "The Green Knight",
-            correctAnswer: true),
-        QuizQuestion(
-            image: "Old",
-            correctAnswer: false),
-        QuizQuestion(
-            image: "The Ice Age Adventures of Buck Wild",
-            correctAnswer: false),
-        QuizQuestion(
-            image: "Tesla",
-            correctAnswer: false),
-        QuizQuestion(
-            image: "Vivarium",
-            correctAnswer: false)
-    ]*/
-    
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
             DispatchQueue.main.async {
